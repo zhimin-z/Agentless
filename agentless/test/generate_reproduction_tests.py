@@ -13,7 +13,7 @@ from tqdm import tqdm
 from agentless.util.api_requests import num_tokens_from_messages
 from agentless.util.model import make_model
 from agentless.util.postprocess_data import remove_comments_and_docstrings
-from agentless.util.utils import load_jsonl, setup_logger
+from agentless.util.utils import load_jsonl, setup_logger, insert_type_in_path
 
 generate_tests_prompt_template = """
 We are currently solving the following issue within our repository. Here is the issue text:
@@ -494,18 +494,18 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o-2024-05-13",
+        default="claude-3-7-sonnet-20250219",
         choices=[
             "gpt-4o-2024-05-13",
             "deepseek-coder",
             "gpt-4o-mini-2024-07-18",
-            "claude-3-5-sonnet-20241022",
+            "claude-3-7-sonnet-20250219",
         ],
     )
     parser.add_argument(
         "--backend",
         type=str,
-        default="openai",
+        default="anthropic",
         choices=["openai", "deepseek", "anthropic"],
     )
     parser.add_argument("--output_folder", type=str, required=True)
@@ -525,20 +525,24 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="princeton-nlp/SWE-bench_Lite",
+        default="princeton-nlp/SWE-bench_Verified",
         choices=["princeton-nlp/SWE-bench_Lite", "princeton-nlp/SWE-bench_Verified"],
+    )
+    parser.add_argument(
+        "--rename",
+        action="store_true",
+        help="Enable renaming (disabled by default)",
     )
 
     args = parser.parse_args()
+    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
 
     assert (not "deepseek" in args.model) or (
         args.backend == "deepseek"
     ), "Must specify `--backend deepseek` if using a DeepSeek model"
 
-    if not os.path.exists(args.output_folder):
-        os.makedirs(args.output_folder)
-    if not os.path.exists(os.path.join(args.output_folder, "generating_test_logs")):
-        os.makedirs(os.path.join(args.output_folder, "generating_test_logs"))
+    os.makedirs(args.output_folder, exist_ok=True)
+    os.makedirs(os.path.join(args.output_folder, "generating_test_logs"), exist_ok=True)
 
     if not args.select:
         args.output_file = os.path.join(args.output_folder, "output.jsonl")

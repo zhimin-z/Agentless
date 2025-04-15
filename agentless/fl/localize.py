@@ -14,7 +14,7 @@ from agentless.util.preprocess_data import (
     filter_out_test_files,
     get_repo_structure,
 )
-from agentless.util.utils import load_existing_instance_ids, load_jsonl, setup_logger
+from agentless.util.utils import load_existing_instance_ids, load_jsonl, setup_logger, insert_type_in_path
 
 MAX_RETRIES = 5
 
@@ -571,29 +571,36 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o-2024-05-13",
+        default="claude-3-7-sonnet-20250219",
         choices=[
             "gpt-4o-2024-05-13",
             "deepseek-coder",
             "gpt-4o-mini-2024-07-18",
-            "claude-3-5-sonnet-20241022",
+            "claude-3-7-sonnet-20250219",
         ],
     )
     parser.add_argument(
         "--backend",
         type=str,
-        default="openai",
+        default="anthropic",
         choices=["openai", "deepseek", "anthropic"],
     )
     parser.add_argument(
         "--dataset",
         type=str,
-        default="princeton-nlp/SWE-bench_Lite",
+        default="princeton-nlp/SWE-bench_Verified",
         choices=["princeton-nlp/SWE-bench_Lite", "princeton-nlp/SWE-bench_Verified"],
         help="Current supported dataset for evaluation",
     )
+    parser.add_argument(
+        "--rename",
+        action="store_true",
+        help="Enable renaming (disabled by default)",
+    )
 
     args = parser.parse_args()
+    args.start_file = insert_type_in_path(args.start_file, args.rename)
+    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
     args.output_file = os.path.join(args.output_folder, args.output_file)
     check_valid_args(args)
 

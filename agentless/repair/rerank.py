@@ -5,7 +5,7 @@ from collections import Counter
 from pathlib import Path
 
 from agentless.util.postprocess_data import normalize_patch
-from agentless.util.utils import load_json, load_jsonl
+from agentless.util.utils import insert_type_in_path, load_jsonl
 
 execution_results = dict()
 
@@ -329,7 +329,13 @@ def main():
     parser.add_argument("--regression", action="store_true")
     parser.add_argument("--reproduction", action="store_true")
     parser.add_argument("--output_file", type=str, default="all_preds.jsonl")
+    parser.add_argument(
+        "--rename",
+        action="store_true",
+        help="Enable renaming (disabled by default)",
+    )
     args = parser.parse_args()
+    args.patch_folder = insert_type_in_path(args.patch_folder, args.rename)
 
     # first normalize
     normalize_patches(args)

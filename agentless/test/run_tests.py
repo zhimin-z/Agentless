@@ -340,7 +340,7 @@ def run_reproduction_tests(
     testing_patches: bool,
     apply_model_patch=True,
     test_jsonl=None,
-    dataset_name="princeton-nlp/SWE-bench_Lite",
+    dataset_name="princeton-nlp/SWE-bench_Verified",
 ):
     assert len(instance_ids) == len(
         model_patches
@@ -496,7 +496,7 @@ def run_tests(
     instances_to_run: list,
     timeout: int,
     apply_model_patch=True,
-    dataset_name="princeton-nlp/SWE-bench_Lite",
+    dataset_name="princeton-nlp/SWE-bench_Verified",
 ):
     assert len(instance_ids) == len(
         model_patches

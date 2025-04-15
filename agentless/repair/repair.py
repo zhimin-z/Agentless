@@ -27,7 +27,7 @@ from agentless.util.preprocess_data import (
     line_wrap_content,
     transfer_arb_locs_to_locs,
 )
-from agentless.util.utils import cleanup_logger, load_jsonl, setup_logger
+from agentless.util.utils import cleanup_logger, load_jsonl, setup_logger, insert_type_in_path
 
 repair_relevant_file_instruction = """
 Below are some code segments, each from a relevant file. One or more of these files may contain bugs.
@@ -746,18 +746,18 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o-2024-05-13",
+        default="claude-3-7-sonnet-20250219",
         choices=[
             "gpt-4o-2024-05-13",
             "deepseek-coder",
             "gpt-4o-mini-2024-07-18",
-            "claude-3-5-sonnet-20241022",
+            "claude-3-7-sonnet-20250219",
         ],
     )
     parser.add_argument(
         "--backend",
         type=str,
-        default="openai",
+        default="anthropic",
         choices=["openai", "deepseek", "anthropic"],
     )
     parser.add_argument("--output_folder", type=str, required=True)
@@ -782,8 +782,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="princeton-nlp/SWE-bench_Lite",
+        default="princeton-nlp/SWE-bench_Verified",
         choices=["princeton-nlp/SWE-bench_Lite", "princeton-nlp/SWE-bench_Verified"],
+    )
+    parser.add_argument(
+        "--rename",
+        action="store_true",
+        help="Enable renaming (disabled by default)",
     )
 
     args = parser.parse_args()
@@ -802,10 +807,10 @@ def main():
         args.str_replace_format and args.backend != "anthropic"
     ), "str_replace_format only supported with anthropic backend"
 
-    if not os.path.exists(args.output_folder):
-        os.makedirs(args.output_folder)
-    if not os.path.exists(os.path.join(args.output_folder, "repair_logs")):
-        os.makedirs(os.path.join(args.output_folder, "repair_logs"))
+    args.loc_file = insert_type_in_path(args.loc_file, args.rename)
+    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
+    os.makedirs(args.output_folder, exist_ok=True)
+    os.makedirs(os.path.join(args.output_folder, "repair_logs"), exist_ok=True)
 
     args.output_file = os.path.join(args.output_folder, "output.jsonl")
 

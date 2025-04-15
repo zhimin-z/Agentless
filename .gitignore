@@ -185,3 +185,5 @@ dev/
 
 # Jupyter Notebooks
 *.ipynb
+playground/
+run.sh

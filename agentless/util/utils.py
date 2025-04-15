@@ -2,6 +2,8 @@ import json
 import logging
 import os
 
+from pathlib import Path
+
 
 def load_jsonl(filepath):
     """
@@ -91,3 +93,28 @@ def load_existing_instance_ids(output_file):
                 except json.JSONDecodeError:
                     continue
     return instance_ids
+
+
+def insert_type_in_path(path_strs, rename, directory_keyword="swe-bench-verified"):
+    if path_strs is None:
+        return None
+    
+    result = []
+    
+    for path_str in path_strs.split(','):
+        path_str = path_str.strip()
+        p = Path(path_str)
+        parts = p.parts
+        
+        for i, part in enumerate(parts):
+            if directory_keyword in part:
+                new_parts = list(parts[:i+1])
+                new_parts.append("rename" if rename else "original")
+                new_parts.extend(parts[i+1:])
+                result.append(str(Path(*new_parts)))
+                break
+        else:
+            # Only reached if directory_keyword wasn't found
+            result.append(path_str)
+    
+    return ','.join(result)

@@ -13,7 +13,7 @@ from swebench.harness.constants import (
 from swebench.harness.grading import get_eval_tests_report, get_logs_eval
 
 from agentless.test.run_tests import run_tests
-
+from agentless.util.utils import insert_type_in_path
 
 def rewrite_report(instance_id, input_folder_path, regression_tests):
 
@@ -237,8 +237,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="princeton-nlp/SWE-bench_Lite",
+        default="princeton-nlp/SWE-bench_Verified",
         choices=["princeton-nlp/SWE-bench_Lite", "princeton-nlp/SWE-bench_Verified"],
+    )
+    parser.add_argument(
+        "--rename",
+        action="store_true",
+        help="Enable renaming (disabled by default)",
     )
 
     args = parser.parse_args()
@@ -247,6 +252,8 @@ def main():
         args.predictions_path and args.output_file
     ), "An output file is only required when selecting regression tests"
 
+    args.output_file = insert_type_in_path(args.output_file, args.rename)
+    args.predictions_path = insert_type_in_path(args.predictions_path, args.rename)
     _run_regression(args)
 
 

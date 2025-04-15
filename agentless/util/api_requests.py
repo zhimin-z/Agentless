@@ -6,7 +6,7 @@ import openai
 import tiktoken
 
 
-def num_tokens_from_messages(message, model="gpt-3.5-turbo-0301"):
+def num_tokens_from_messages(message, model="gpt-3.5-turbo"):
     """Returns the number of tokens used by a list of messages."""
     try:
         encoding = tiktoken.encoding_for_model(model)

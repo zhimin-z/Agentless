@@ -5,7 +5,7 @@ import os
 from datasets import load_dataset
 
 from agentless.test.run_tests import run_reproduction_tests, txt_file_contains_string
-from agentless.util.utils import load_jsonl
+from agentless.util.utils import load_jsonl, insert_type_in_path
 
 execution_results = dict()
 
@@ -154,13 +154,19 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="princeton-nlp/SWE-bench_Lite",
+        default="princeton-nlp/SWE-bench_Verified",
         choices=["princeton-nlp/SWE-bench_Lite", "princeton-nlp/SWE-bench_Verified"],
     )
     parser.add_argument("--test_jsonl", type=str)
     parser.add_argument("--load", action="store_true")
+    parser.add_argument(
+        "--rename",
+        action="store_true",
+        help="Enable renaming (disabled by default)",
+    )
 
     args = parser.parse_args()
+    args.predictions_path = insert_type_in_path(args.predictions_path, args.rename)
 
     # then load and run production tests on the results
     _run_reproduction_tests(args)
