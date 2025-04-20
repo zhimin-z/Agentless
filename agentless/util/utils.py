@@ -95,7 +95,7 @@ def load_existing_instance_ids(output_file):
     return instance_ids
 
 
-def insert_type_in_path(path_strs, rename, directory_keyword="swe-bench-verified"):
+def insert_type_in_path(path_strs, rename=False, directory_keyword="swe-bench-verified"):
     if path_strs is None:
         return None
     

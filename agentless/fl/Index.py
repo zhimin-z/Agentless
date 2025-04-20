@@ -214,7 +214,6 @@ class EmbeddingIndex(ABC):
             raise NotImplementedError
 
     def retrieve(self, mock=False):
-
         persist_dir = self.persist_dir.format(instance_id=self.instance_id)
         token_counter = TokenCountingHandler(
             tokenizer=tiktoken.encoding_for_model("text-embedding-3-small").encode
