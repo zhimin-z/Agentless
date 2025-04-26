@@ -413,9 +413,7 @@ def run_reproduction_tests(
     print(f"Found {len(existing_images)} existing instance images. Will reuse them.")
 
     # Load in previously evaluated results
-    resolved_dict = extract_resolved_info(
-        os.path.join("logs", "run_evaluation", run_id, "test")
-    )
+    resolved_dict = extract_resolved_info(f"logs/run_evaluation/{run_id}/test")
 
     if instances_to_run:
         ids = instances_to_run
@@ -503,7 +501,7 @@ def run_tests(
     ), "There must be the same number of instance_ids as model patches"
     resource.setrlimit(resource.RLIMIT_NOFILE, (OPEN_FILE_LIMIT, OPEN_FILE_LIMIT))
 
-    print(f"Using run_id: {run_id}")
+    print(f"Processing {len(instance_ids)} instances with {max_workers} workers")
 
     split = "test"
     client = docker.from_env()
@@ -511,6 +509,7 @@ def run_tests(
 
     predictions = {}
 
+    print("Preparing predictions...")
     for idx, one_instance_id in enumerate(instance_ids):
         if not apply_model_patch:
             patch_to_apply = NOOP_PATCH
@@ -521,7 +520,8 @@ def run_tests(
             "model_patch": patch_to_apply,
             "instance_id": one_instance_id,
         }
-
+        
+    print(f"Getting dataset from predictions for {len(instance_ids)} instances...")
     instances = get_dataset_from_preds(
         dataset_name, split, instance_ids, predictions, run_id
     )
@@ -530,18 +530,22 @@ def run_tests(
     if not instances:
         print("No instances to run.")
     else:
+        print("Building environment images...")
         build_env_images(client, instances, force_rebuild, max_workers)
 
     instance_test_dict = {}
 
     if regression_test_file:
+        print(f"Loading regression tests from {regression_test_file}...")
         with open(regression_test_file, "r") as file:
             for line in file:
                 json_obj = json.loads(line.strip())
                 instance_id = json_obj["instance_id"]
                 test = json_obj["tests_passing_in_original_repo"]
                 instance_test_dict[instance_id] = test
+        print(f"Loaded {len(instance_test_dict)} test entries")
 
+    print("Preparing instances without fail-to-pass tests...")
     no_f2p_instances = []
     for instance in instances:
         revised_instance = instance
@@ -558,8 +562,10 @@ def run_tests(
 
         no_f2p_instances.append(revised_instance)
 
+    print(f"Creating test specifications for {len(no_f2p_instances)} instances...")
     test_specs = list(map(make_regression_spec, no_f2p_instances))
 
+    print("Rearranging patches for optimal execution...")
     test_specs = rearrange_patches(test_specs)
 
     instance_image_ids = {x.instance_image_key for x in test_specs}
@@ -572,25 +578,28 @@ def run_tests(
     print(f"Found {len(existing_images)} existing instance images. Will reuse them.")
 
     # Load in previously evaluated results
-    resolved_dict = extract_resolved_info(
-        os.path.join("logs", "run_evaluation", run_id, "test")
-    )
-
+    resolved_dict = extract_resolved_info(f"logs/run_evaluation/{run_id}/test")
+    
     if instances_to_run:
         ids = instances_to_run
+        print(f"Running {len(ids)} specified instances")
     else:
         ids = [
             test_spec.instance_id
             for test_spec in test_specs
             if test_spec.instance_id not in list(resolved_dict.keys())
         ]
+        print(f"Running {len(ids)} unevaluated instances")
 
     results = {}
 
     # Set the empty instances as not resolving the issue
+    empty_patches = 0
     for index, patch in enumerate(model_patches):
         if patch == "":
             resolved_dict[instance_ids[index]] = False
+            empty_patches += 1
+    print(f"Set {empty_patches} empty patches as not resolved")
 
     with tqdm(total=len(ids), smoothing=0, colour="MAGENTA") as pbar:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -626,5 +635,5 @@ def run_tests(
                     resolved_dict[instance_id] = False
                     continue
 
-    print("All instances run.")
+    print(f"Successfully processed {len(resolved_dict)} instances")
     return resolved_dict

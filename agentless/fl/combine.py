@@ -5,7 +5,7 @@ from collections import Counter
 
 from tqdm import tqdm
 
-from agentless.util.utils import load_jsonl, insert_type_in_path
+from agentless.util.utils import load_jsonl
 
 
 def combine_file_level(args):
@@ -70,11 +70,8 @@ def main():
     )
 
     args = parser.parse_args()
-
-    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
     args.output_file = os.path.join(args.output_folder, args.output_file)
-    args.retrieval_loc_file = insert_type_in_path(args.retrieval_loc_file, args.rename)
-    args.model_loc_file = insert_type_in_path(args.model_loc_file, args.rename)
+
     assert not os.path.exists(args.output_file), "Output file already exists"
 
     os.makedirs(args.output_folder, exist_ok=True)

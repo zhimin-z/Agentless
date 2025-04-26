@@ -13,7 +13,7 @@ from agentless.util.preprocess_data import (
     filter_out_test_files,
     get_repo_structure,
 )
-from agentless.util.utils import insert_type_in_path, load_jsonl, setup_logger
+from agentless.util.utils import load_jsonl, setup_logger
 
 
 def retrieve_locs(bug, args, swe_bench_data, found_files, prev_o, write_lock=None):
@@ -167,10 +167,8 @@ def main():
     )
 
     args = parser.parse_args()
-
-    args.filter_file = insert_type_in_path(args.filter_file, args.rename)
-    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
     args.output_file = os.path.join(args.output_folder, args.output_file)
+
     assert (
         not args.filter_type == "given_files" or args.filter_file != ""
     ), "Need to provide a filtering file"

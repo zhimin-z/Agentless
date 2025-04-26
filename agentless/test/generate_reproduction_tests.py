@@ -13,7 +13,7 @@ from tqdm import tqdm
 from agentless.util.api_requests import num_tokens_from_messages
 from agentless.util.model import make_model
 from agentless.util.postprocess_data import remove_comments_and_docstrings
-from agentless.util.utils import load_jsonl, setup_logger, insert_type_in_path
+from agentless.util.utils import load_jsonl, setup_logger
 
 generate_tests_prompt_template = """
 We are currently solving the following issue within our repository. Here is the issue text:
@@ -535,7 +535,6 @@ def main():
     )
 
     args = parser.parse_args()
-    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
 
     assert (not "deepseek" in args.model) or (
         args.backend == "deepseek"

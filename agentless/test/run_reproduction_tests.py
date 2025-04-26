@@ -5,7 +5,7 @@ import os
 from datasets import load_dataset
 
 from agentless.test.run_tests import run_reproduction_tests, txt_file_contains_string
-from agentless.util.utils import load_jsonl, insert_type_in_path
+from agentless.util.utils import load_jsonl
 
 execution_results = dict()
 
@@ -166,7 +166,6 @@ def main():
     )
 
     args = parser.parse_args()
-    args.predictions_path = insert_type_in_path(args.predictions_path, args.rename)
 
     # then load and run production tests on the results
     _run_reproduction_tests(args)

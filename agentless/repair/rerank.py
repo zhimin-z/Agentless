@@ -5,7 +5,7 @@ from collections import Counter
 from pathlib import Path
 
 from agentless.util.postprocess_data import normalize_patch
-from agentless.util.utils import insert_type_in_path, load_jsonl
+from agentless.util.utils import load_jsonl
 
 execution_results = dict()
 
@@ -335,7 +335,6 @@ def main():
         help="Enable renaming (disabled by default)",
     )
     args = parser.parse_args()
-    args.patch_folder = insert_type_in_path(args.patch_folder, args.rename)
 
     # first normalize
     normalize_patches(args)

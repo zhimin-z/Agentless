@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from agentless.util.api_requests import num_tokens_from_messages
 from agentless.util.model import make_model
-from agentless.util.utils import load_jsonl, setup_logger, insert_type_in_path
+from agentless.util.utils import load_jsonl, setup_logger
 
 MAX_CONTEXT_LENGTH = 128000
 
@@ -216,9 +216,6 @@ def main():
     assert (not "deepseek" in args.model) or (
         args.backend == "deepseek"
     ), "Must specify `--backend deepseek` if using a DeepSeek model"
-
-    args.passing_tests = insert_type_in_path(args.passing_tests, args.rename)
-    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
     
     os.makedirs(args.output_folder, exist_ok=True)
     os.makedirs(os.path.join(args.output_folder, "select_test_logs"), exist_ok=True)

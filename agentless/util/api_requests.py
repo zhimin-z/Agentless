@@ -143,14 +143,12 @@ def request_anthropic_engine(
         try:
             start_time = time.time()
             if prompt_cache:
-                # following best practice to cache mainly the reused content at the beginning
-                # this includes any tools, system messages (which is already handled since we try to cache the first message)
-                config["messages"][0]["content"][0]["cache_control"] = {
-                    "type": "ephemeral"
-                }
-                ret = client.beta.prompt_caching.messages.create(**config)
-            else:
-                ret = client.messages.create(**config)
+                # Add ephemeral cache_control to reused content
+                if "messages" in config and config["messages"]:
+                    first_content = config["messages"][0].get("content", [])
+                    if first_content and isinstance(first_content[0], dict):
+                        first_content[0]["cache_control"] = {"type": "ephemeral"}
+            ret = client.messages.create(**config)
         except Exception as e:
             logger.error("Unknown error. Waiting...", exc_info=True)
             # Check if the timeout has been exceeded

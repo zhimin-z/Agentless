@@ -282,15 +282,19 @@ Notes for using the `str_replace` command:
                 )
 
         return trajs
-
     def codegen(
         self, message: str, num_samples: int = 1, prompt_cache: bool = False
     ) -> List[dict]:
         if self.temperature == 0:
             assert num_samples == 1
-
+        
+        print(f"[AnthropicChatDecoder] Starting codegen with model: {self.name}")
+        print(f"[AnthropicChatDecoder] Generating {num_samples} samples, prompt_cache={prompt_cache}")
+        
         trajs = []
-        for _ in range(num_samples):
+        for i in range(num_samples):
+            print(f"[AnthropicChatDecoder] Generating sample {i+1}/{num_samples}...")
+            
             config = create_anthropic_config(
                 message=message,
                 max_tokens=self.max_new_tokens,
@@ -298,11 +302,17 @@ Notes for using the `str_replace` command:
                 batch_size=1,
                 model=self.name,
             )
+            print(f"[AnthropicChatDecoder] Config created with max_tokens={self.max_new_tokens}, temp={self.temperature}")
+            
+            print(f"[AnthropicChatDecoder] Sending request to Anthropic engine...")
             ret = request_anthropic_engine(
                 config, self.logger, prompt_cache=prompt_cache
             )
 
             if ret:
+                print(f"[AnthropicChatDecoder] Response received, length: {len(ret.content[0].text) if ret.content else 0} chars")
+                print(f"[AnthropicChatDecoder] Tokens used - Input: {ret.usage.input_tokens}, Output: {ret.usage.output_tokens}")
+                
                 trajs.append(
                     {
                         "response": ret.content[0].text,
@@ -318,7 +328,9 @@ Notes for using the `str_replace` command:
                         },
                     }
                 )
+                print(f"[AnthropicChatDecoder] Sample {i+1} processing complete")
             else:
+                print(f"[AnthropicChatDecoder] ERROR: No response received from Anthropic")
                 trajs.append(
                     {
                         "response": "",
@@ -329,6 +341,7 @@ Notes for using the `str_replace` command:
                     }
                 )
 
+        print(f"[AnthropicChatDecoder] All {num_samples} samples generated successfully")
         return trajs
 
     def is_direct_completion(self) -> bool:

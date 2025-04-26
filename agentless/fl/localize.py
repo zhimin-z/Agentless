@@ -14,7 +14,7 @@ from agentless.util.preprocess_data import (
     filter_out_test_files,
     get_repo_structure,
 )
-from agentless.util.utils import load_existing_instance_ids, load_jsonl, setup_logger, insert_type_in_path
+from agentless.util.utils import load_existing_instance_ids, load_jsonl, setup_logger
 
 MAX_RETRIES = 5
 
@@ -599,8 +599,6 @@ def main():
     )
 
     args = parser.parse_args()
-    args.start_file = insert_type_in_path(args.start_file, args.rename)
-    args.output_folder = insert_type_in_path(args.output_folder, args.rename)
     args.output_file = os.path.join(args.output_folder, args.output_file)
     check_valid_args(args)
 

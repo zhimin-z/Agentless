@@ -13,7 +13,6 @@ from swebench.harness.constants import (
 from swebench.harness.grading import get_eval_tests_report, get_logs_eval
 
 from agentless.test.run_tests import run_tests
-from agentless.util.utils import insert_type_in_path
 
 def rewrite_report(instance_id, input_folder_path, regression_tests):
 
@@ -207,7 +206,7 @@ def _run_regression(args):
             # save the list of passing tests
             save_passing_tests(
                 args.output_file,
-                os.path.join("logs", "run_evaluation", args.run_id),
+                f"logs/run_evaluation/{args.run_id}",
                 args.dataset,
             )
 
@@ -251,9 +250,7 @@ def main():
     assert not (
         args.predictions_path and args.output_file
     ), "An output file is only required when selecting regression tests"
-
-    args.output_file = insert_type_in_path(args.output_file, args.rename)
-    args.predictions_path = insert_type_in_path(args.predictions_path, args.rename)
+    
     _run_regression(args)
 
 
