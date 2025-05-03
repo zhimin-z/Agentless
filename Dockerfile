@@ -20,6 +20,10 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /
     apt-get install -y docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
 
+RUN git config --global user.email "knightyzhao@gmail.com" && \
+    git config --global user.name "zhimin-z" && \
+    git config --global init.defaultBranch main
+
 # Install Python 3.12
 RUN add-apt-repository ppa:deadsnakes/ppa -y && \
     apt-get update && \
