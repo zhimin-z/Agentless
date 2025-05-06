@@ -186,4 +186,5 @@ dev/
 # Jupyter Notebooks
 *.ipynb
 playground/
+venn_diagrams/
 run.sh
